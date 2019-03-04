@@ -481,6 +481,44 @@ Please see [here](#manage-non-searchable-fields).
 - `java.lang.NoClassDefFoundError: org/hibernate/jpa/criteria/path/AbstractPathImpl`
 
 The versions `>= 5.0.0` of the library are not compatible with Spring 4 (Spring Boot 1.x), please use the previous versions.
-
+-
+## Important Model Related Troubleshooting
+- using `@JsonManagedReference` and `@JsonBackReference` in relational models, to avoid jackson json loop error
+```java
+@Entity
+public class Customer {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="title", length=3)
+	@NotBlank
+	private String title;
+  
+  @Valid
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="address_id", referencedColumnName="id")
+	@JsonManagedReference
+	private Address address;
+  
+ }
+ 
+@Entity
+public class Address {
+  @Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+		
+	@Column(name="alias_name", length=100)
+	@NotBlank
+	private String name;
+  
+  @OneToOne(mappedBy="address")
+	@JsonBackReference
+	private Customer customer;
+  
+}
+```
 
 Back to [top](#spring-data-jpa-datatables).
